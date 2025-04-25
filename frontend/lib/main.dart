@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
-import 'app.dart';
+import 'features/order/screens/order_form_screen.dart';
 
 void main() {
-  runApp(const KioskApp());
+  runApp(const MaterialApp(
+    home: OrderFormScreen(),
+    debugShowCheckedModeBanner: false,
+  ));
 }
+
