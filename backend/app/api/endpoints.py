@@ -74,3 +74,13 @@ def pay_with_terminal(order_id: str = Body(..., embed=True)):
 @router.post("/payment")
 def process_payment():
     return {"status": "ok"}
+
+
+# tmp menu
+@router.get("/menu")
+def get_menu():
+    return [
+        {"product_id": "001", "name": "Burrito de arrachera", "price": 85},
+        {"product_id": "002", "name": "Quesadilla", "price": 45},
+        {"product_id": "003", "name": "Refresco", "price": 25},
+    ]
