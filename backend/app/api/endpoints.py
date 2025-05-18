@@ -8,18 +8,42 @@ from fastapi import Path
 from app.models.order import OrderStatusUpdate
 from app.models.order import PaymentMethod
 from fastapi import Body
+from fastapi import Depends
+from sqlalchemy.orm import Session
+from app.core.database import get_db
+from app.models.order_db import Order as DBOrder, Item as DBItem
+from app.models.order import Order as RequestOrder  # Pydantic model
+from uuid import uuid4
+from datetime import datetime
 
 router = APIRouter()
 
-# Memoria temporal
-orders_db: List[Order] = []
-
 @router.post("/orders")
-def create_order(order: Order):
-    order.id = str(uuid4())
-    order.created_at = datetime.now()
-    orders_db.append(order)
-    return {"message": "Orden creada", "order_id": order.id}
+def create_order(order: RequestOrder, db: Session = Depends(get_db)):
+    order_id = str(uuid4())
+    db_order = DBOrder(
+        id=order_id,
+        total=order.total,
+        payment_method=order.payment_method,
+        status="pending",
+        created_at=datetime.utcnow(),
+    )
+
+    for item in order.items:
+        db_item = DBItem(
+            product_id=item.product_id,
+            name=item.name,
+            quantity=item.quantity,
+            price=item.price,
+            order=db_order,
+        )
+        db_order.items.append(db_item)
+
+    db.add(db_order)
+    db.commit()
+    db.refresh(db_order)
+
+    return {"message": "Orden creada", "order_id": db_order.id}
 
 def get_orders():
     return {"orders": []}
@@ -75,12 +99,3 @@ def pay_with_terminal(order_id: str = Body(..., embed=True)):
 def process_payment():
     return {"status": "ok"}
 
-
-# tmp menu
-@router.get("/menu")
-def get_menu():
-    return [
-        {"product_id": "001", "name": "Burrito de arrachera", "price": 85},
-        {"product_id": "002", "name": "Quesadilla", "price": 45},
-        {"product_id": "003", "name": "Refresco", "price": 25},
-    ]
