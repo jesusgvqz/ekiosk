@@ -30,7 +30,8 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
-/frontend/build
+/frontend/build/
+/frontend/build/flutter
 
 # Symbolication related
 app.*.symbols
