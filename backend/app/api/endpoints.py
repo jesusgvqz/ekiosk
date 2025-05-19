@@ -92,12 +92,15 @@ def get_kitchen_orders(db: Session = Depends(get_db)):
 
 
 @router.patch("/orders/{order_id}/status")
-def update_order_status(order_id: str, status_update: OrderStatusUpdate):
-    for order in orders_db:
-        if order.id == order_id:
-            order.status = status_update.status
-            return {"message": f"Orden {order_id} actualizada a '{order.status}'"}
-    raise HTTPException(status_code=404, detail="Orden no encontrada")
+def update_order_status(order_id: str, status_update: OrderStatusUpdate, db: Session = Depends(get_db)):
+    order = db.query(DBOrder).filter(DBOrder.id == order_id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Orden no encontrada")
+    order.status = status_update.status
+    db.commit()
+    db.refresh(order)
+    return {"message": f"Orden {order.id} actualizada a '{order.status}'"}
+
 
 @router.patch("/orders/{order_id}/status")
 def update_order_status(order_id: str, status_update: OrderStatusUpdate, db: Session = Depends(get_db)):

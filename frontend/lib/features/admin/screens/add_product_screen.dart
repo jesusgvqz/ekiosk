@@ -49,7 +49,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   @override
   Widget build(BuildContext context) {
     return ThemedScaffold(
-      appBar: AppBar(title: const Text("Agregar Platillo")),
+      appBar: AppBar(title: const Text("Agregar Producto")),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
