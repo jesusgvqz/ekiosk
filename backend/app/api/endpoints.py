@@ -90,6 +90,7 @@ def get_kitchen_orders(db: Session = Depends(get_db)):
         } for order in kitchen_orders
     ]
 
+
 @router.patch("/orders/{order_id}/status")
 def update_order_status(order_id: str, status_update: OrderStatusUpdate):
     for order in orders_db:
@@ -115,7 +116,7 @@ def pay_at_cashier(order_id: str = Body(..., embed=True), db: Session = Depends(
     order = db.query(DBOrder).filter(DBOrder.id == order_id).first()
     if not order:
         raise HTTPException(status_code=404, detail="Orden no encontrada")
-    order.status = "paid"
+    order.status = "pending"
     db.commit()
     return {"message": f"Orden {order.id} pagada en caja"}
 
@@ -125,7 +126,7 @@ def pay_with_terminal(order_id: str = Body(..., embed=True), db: Session = Depen
     order = db.query(DBOrder).filter(DBOrder.id == order_id).first()
     if not order:
         raise HTTPException(status_code=404, detail="Orden no encontrada")
-    order.status = "paid"
+    order.status = "pending"
     db.commit()
     return {"message": f"Orden {order.id} pagada en terminal bancaria"}
 

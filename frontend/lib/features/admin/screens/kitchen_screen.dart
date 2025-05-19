@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../../core/config.dart';
 import '../../../core/widgets/themed_scaffold.dart';
+import 'dart:async';
 
 class KitchenScreen extends StatefulWidget {
   const KitchenScreen({super.key});
@@ -26,6 +27,10 @@ class _KitchenScreenState extends State<KitchenScreen> {
         _orders = [];
       });
     }
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text("Órdenes actualizadas"), duration: Duration(milliseconds: 600)),
+    );
   }
 
   Future<void> _updateStatus(String orderId, String newStatus) async {
@@ -38,11 +43,25 @@ class _KitchenScreenState extends State<KitchenScreen> {
     _fetchOrders(); // Recargar lista
   }
 
+  Timer? _autoRefresh;
+
   @override
   void initState() {
     super.initState();
     _fetchOrders();
+
+    // 🔄 Refresca automáticamente cada 30 segundos
+    _autoRefresh = Timer.periodic(const Duration(seconds: 30), (timer) {
+      _fetchOrders();
+    });
   }
+
+  @override
+  void dispose() {
+    _autoRefresh?.cancel(); // ✨ Importante: cancelar el timer cuando se destruye la pantalla
+    super.dispose();
+  }
+
 
   @override
   Widget build(BuildContext context) {
